@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMS Spam Classifier — AI-Powered Detection</title>
+  <meta
+    name="description"
+    content="Instantly detect spam messages using a machine learning model trained on real SMS data. Powered by Naive Bayes + TF-IDF."
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <div class="page-wrapper">
+
+    <!-- ── Header ── -->
+    <header class="header">
+      <div class="header-badge">
+        <span class="dot"></span>
+        AI-Powered · Live Detection
+      </div>
+      <h1>SMS <span class="gradient-text">Spam</span> Classifier</h1>
+      <p>
+        Paste any message below and our machine learning model will instantly
+        tell you whether it's spam or legitimate.
+      </p>
+    </header>
+
+    <!-- ── Stats Strip ── -->
+    <div class="stats-strip" aria-label="Model statistics">
+      <div class="stat-item">
+        <div class="stat-value">97%+</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">5,572</div>
+        <div class="stat-label">Training Msgs</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">&lt; 50ms</div>
+        <div class="stat-label">Inference</div>
+      </div>
+    </div>
+
+    <!-- ── Main Card ── -->
+    <main class="card" role="main">
+      <div class="card-body">
+
+        <!-- Form -->
+        <form id="predict-form" novalidate>
+          <label class="form-label" for="message-input">
+            <span class="label-icon">✉️</span>
+            Your Message
+            <span class="char-counter" id="char-counter" aria-live="polite">0 / 500</span>
+          </label>
+
+          <textarea
+            id="message-input"
+            name="message"
+            maxlength="500"
+            placeholder="Type or paste your SMS message here… e.g.  &quot;Congratulations! You've won a free iPhone. Click to claim.&quot;"
+            aria-label="Message text to classify"
+            autocomplete="off"
+            spellcheck="true"
+          ></textarea>
+
+          <button
+            id="submit-btn"
+            type="submit"
+            class="btn-primary"
+            aria-label="Check if message is spam"
+          >
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span class="btn-text">🔍 Check Message</span>
+          </button>
+        </form>
+
+        <!-- Result -->
+        <section
+          id="result-section"
+          class="result-section"
+          aria-live="polite"
+          aria-label="Classification result"
+        >
+          <div id="result-card" class="result-card">
+            <div id="result-icon" class="result-icon" aria-hidden="true"></div>
+            <div class="result-details">
+              <div id="result-label" class="result-label"></div>
+              <div id="result-desc" class="result-description"></div>
+              <div class="confidence-label">
+                <span>Model Confidence</span>
+                <span id="confidence-value"></span>
+              </div>
+              <div class="confidence-track">
+                <div id="confidence-fill" class="confidence-fill"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sample Messages -->
+        <div class="section-divider" aria-hidden="true">
+          <span>Try a sample</span>
+        </div>
+
+        <div class="samples-grid" role="list" aria-label="Sample messages">
+
+          <button
+            class="sample-chip"
+            data-message="Congratulations! You've won a $1,000 Walmart gift card. Go to http://bit.ly/12345 to claim now."
+            aria-label="Sample spam: prize scam"
+            role="listitem"
+          >
+            <span class="chip-badge spam">Spam</span>
+            <span class="chip-text">Congratulations! You've won a $1,000 gift card…</span>
+          </button>
+
+          <button
+            class="sample-chip"
+            data-message="Hey! Are we still on for dinner tonight at 7? Let me know if you need to reschedule."
+            aria-label="Sample ham: casual message"
+            role="listitem"
+          >
+            <span class="chip-badge ham">Ham</span>
+            <span class="chip-text">Hey! Are we still on for dinner tonight at 7?</span>
+          </button>
+
+          <button
+            class="sample-chip"
+            data-message="URGENT: Your bank account has been suspended. Verify your details immediately at secure-bank-login.net"
+            aria-label="Sample spam: phishing attempt"
+            role="listitem"
+          >
+            <span class="chip-badge spam">Spam</span>
+            <span class="chip-text">URGENT: Your bank account has been suspended…</span>
+          </button>
+
+          <button
+            class="sample-chip"
+            data-message="Can you please send me the meeting notes from yesterday's call? Thanks!"
+            aria-label="Sample ham: work message"
+            role="listitem"
+          >
+            <span class="chip-badge ham">Ham</span>
+            <span class="chip-text">Can you send me the meeting notes from yesterday?</span>
+          </button>
+
+          <button
+            class="sample-chip"
+            data-message="FREE entry! Text WIN to 80080 and you could win a brand new car worth £30,000! T&C apply."
+            aria-label="Sample spam: SMS contest scam"
+            role="listitem"
+          >
+            <span class="chip-badge spam">Spam</span>
+            <span class="chip-text">FREE entry! Text WIN to 80080 to win a car…</span>
+          </button>
+
+          <button
+            class="sample-chip"
+            data-message="Happy birthday! Hope your day is amazing. Let's celebrate this weekend 🎂"
+            aria-label="Sample ham: birthday message"
+            role="listitem"
+          >
+            <span class="chip-badge ham">Ham</span>
+            <span class="chip-text">Happy birthday! Hope your day is amazing 🎂</span>
+          </button>
+
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer class="footer">
+      <p>
+        Built with ❤️ using
+        <a href="https://flask.palletsprojects.com/" target="_blank" rel="noopener">Flask</a>,
+        <a href="https://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn</a> &amp;
+        <a href="https://archive.ics.uci.edu/dataset/228/sms+spam+collection" target="_blank" rel="noopener">UCI SMS Dataset</a>
+      </p>
+    </footer>
+
+  </div><!-- /page-wrapper -->
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
